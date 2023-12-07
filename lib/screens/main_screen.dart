@@ -3,14 +3,14 @@ import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:math_expressions/math_expressions.dart';
 
-class MyCalculatorNew extends StatefulWidget {
-  const MyCalculatorNew({Key? key}) : super(key: key);
+class MyCalculator extends StatefulWidget {
+  const MyCalculator({Key? key}) : super(key: key);
 
   @override
-  State<MyCalculatorNew> createState() => _MyCalculatorNewState();
+  State<MyCalculator> createState() => _MyCalculatorState();
 }
 
-class _MyCalculatorNewState extends State<MyCalculatorNew> {
+class _MyCalculatorState extends State<MyCalculator> {
   Map<String, bool> buttonElevationState = {
     "AC": false,
     "⌫": false,

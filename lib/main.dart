@@ -1,9 +1,10 @@
-import 'package:calculator/view/new.dart';
+import 'package:Calculator/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -17,8 +18,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyCalculatorNew(),
+      home: const MyCalculator(),
     );
   }
 }
+
+
 
