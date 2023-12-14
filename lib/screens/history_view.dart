@@ -16,10 +16,7 @@ class HistoryView extends StatelessWidget {
           IconButton(
               onPressed: () {
                 providermodel.box.clear();
-                // if(providermodel.box.length >=5){
-                //   providermodel.box.deleteAt(0);
-                // }
-              },
+                },
               icon: Icon(Icons.delete))
         ],
       ),
@@ -41,8 +38,8 @@ class HistoryView extends StatelessWidget {
                 // HiveModel helper=providermodel.box.getAt(index);
                 HiveModel helper = providermodel.sortedCalculation[index];
                 return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  height: 65,
+                  margin: EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                  height: 80,
                   width: MediaQuery.of(context).size.width,
                   color: Colors.deepPurple.shade50,
                   child: ListTile(

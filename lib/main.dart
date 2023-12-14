@@ -5,7 +5,6 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
-
 import 'models/hive_model.dart';
 void main() async{
 WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home:  MyCalculator(historyInput: "", historyOutput: '',),
+        home:  MyCalculator(historyInput: '', historyOutput: '',),
       ),
     );
   }
