@@ -1,16 +1,26 @@
+import 'package:Calculator/models/hive_model.dart';
 import 'package:flutter_inset_box_shadow/flutter_inset_box_shadow.dart';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:math_expressions/math_expressions.dart';
+import 'package:provider/provider.dart';
+import '../provider/provider.dart';
+import '../shared_pref/db.dart';
+import 'history_view.dart';
 
 class MyCalculator extends StatefulWidget {
-  const MyCalculator({Key? key}) : super(key: key);
+  String historyInput=" ";
+  String historyOutput=" ";
+
+  MyCalculator({required this.historyInput,  required this.historyOutput, Key? key})
+      : super(key: key);
 
   @override
   State<MyCalculator> createState() => _MyCalculatorState();
 }
 
 class _MyCalculatorState extends State<MyCalculator> {
+
   Map<String, bool> buttonElevationState = {
     "AC": false,
     "⌫": false,
@@ -31,12 +41,34 @@ class _MyCalculatorState extends State<MyCalculator> {
     "0": false,
     ".": false,
     "=": false,
+    "history": false
   };
-
+@override
+  void initState() {
+   setState(() {
+     input=widget.historyInput;
+     output=widget.historyOutput;
+   });
+    super.initState();
+  }
   var input = " ";
   var output = " ";
   var outputSize = 38.0;
   var inputSize = 50.0;
+
+  ContactHistory contactHistory = ContactHistory();
+
+  showHistory() async {
+    //this  function help to get data stored in sharedpreference
+    List data = await contactHistory.getContacts();
+    String inputdata = data[0];
+    String outputdata = data[1];
+    if (inputdata.isNotEmpty || outputdata.isNotEmpty) {
+      input = inputdata;
+      output = outputdata;
+      setState(() {});
+    }
+  }
 
   onClick(value) {
     if (value == "AC") {
@@ -58,10 +90,22 @@ class _MyCalculatorState extends State<MyCalculator> {
         ContextModel cm = ContextModel();
         var finalvalue = expression.evaluate(EvaluationType.REAL, cm);
         output = finalvalue.toString();
+
         if (output.endsWith(".0")) {
           output = output.substring(0, output.length - 2);
         }
+        var providermodel =
+            Provider.of<HistoryProvider>(context, listen: false);
+        HiveModel data =
+            HiveModel(output: output, input: input, createdAt: DateTime.now());
+        providermodel.addCalculations(data); //this help to add data to hive box
+        providermodel
+            .deleteHistory(); //this help to delete data stored in the box.if the box occupied 10 items
+        contactHistory.saveContacts(
+            input, output); //function to add values to shared preference
       }
+    } else if (value == "history") {
+      return showHistory();
     } else {
       input = input + value;
     }
@@ -70,10 +114,29 @@ class _MyCalculatorState extends State<MyCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+       return Scaffold(
       backgroundColor: Colors.grey[300],
+      appBar: AppBar(
+        backgroundColor: Colors.grey[300],
+        leading: Padding(
+          padding: const EdgeInsets.only(top: 13, left: 10),
+          child: IconButton(
+            iconSize: 40,
+            color: Colors.blueGrey,
+            onPressed: () {
+              // showHistory();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HistoryView(),
+                  ));
+            },
+            icon: Icon(Icons.history),
+          ),
+        ),
+      ),
       body: Container(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         child: Column(
           children: [
             Expanded(
@@ -97,7 +160,7 @@ class _MyCalculatorState extends State<MyCalculator> {
                     ),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      reverse: true,
+                      reverse: false,
                       child: Text(
                         output,
                         style: GoogleFonts.aleo(
@@ -121,7 +184,7 @@ class _MyCalculatorState extends State<MyCalculator> {
               ],
             ),
             SizedBox(
-              height: 15,
+              height: 20,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -162,7 +225,10 @@ class _MyCalculatorState extends State<MyCalculator> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(width: 154, child: Button1(text: "0")),
+                // Container(width: 154, child: Button1(text: "0")),
+                Button1(text: "0"),
+                Button1(
+                    icon: Icons.settings_backup_restore_sharp, text: "history"),
                 Button1(text: "."),
                 Button1(text: "=", tcolor: Colors.orange),
               ],
@@ -173,7 +239,7 @@ class _MyCalculatorState extends State<MyCalculator> {
     );
   }
 
-  Widget Button1({text, tcolor}) {
+  Widget Button1({text, tcolor, IconData? icon}) {
     bool isElevated = buttonElevationState[text] ??
         false; // Use ?? to provide a default value
     Offset offset = isElevated ? Offset(2, 2) : Offset(3, 3);
@@ -193,18 +259,24 @@ class _MyCalculatorState extends State<MyCalculator> {
       },
       child: AnimatedContainer(
         child: Center(
-          child: Text(
-            text.toString(),
-            style: GoogleFonts.abyssinicaSil(
-              fontSize: 26,
-              color: isElevated ? Colors.green : tcolor,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child: icon != null
+              ? Icon(
+                  icon,
+                  size: 30,
+                  color: isElevated ? Colors.green : Colors.blueGrey,
+                )
+              : Text(
+                  text.toString(),
+                  style: GoogleFonts.abyssinicaSil(
+                    fontSize: 26,
+                    color: isElevated ? Colors.green : tcolor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
         duration: const Duration(milliseconds: 40),
-        height: 70,
-        width: 70,
+        height: 65,
+        width: 65,
         decoration: BoxDecoration(
           color: Colors.grey[300],
           borderRadius: BorderRadius.circular(20),
